@@ -25,6 +25,7 @@ public final class Terminal {
     try {
       process.waitFor();
     } catch ( final InterruptedException ignore ) {
+      process.destroy();
     }
   }
   
