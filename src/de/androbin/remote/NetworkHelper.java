@@ -58,6 +58,7 @@ public final class NetworkHelper implements Runnable {
     if ( running ) {
       return true;
     }
+    
     try {
       server = new Socket( ip, port );
       outputStream = new DataOutputStream( server.getOutputStream() );
@@ -67,6 +68,7 @@ public final class NetworkHelper implements Runnable {
     
     running = true;
     thread = new Thread( this, "NetworkHelper" );
+    thread.setDaemon( true );
     thread.start();
     return true;
   }

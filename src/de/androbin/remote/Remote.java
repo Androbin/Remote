@@ -35,14 +35,18 @@ public final class Remote {
       log( "\t\t<instruction>" + instruction + "</instruction>" );
       
       switch ( instruction ) {
+        default:
+          commander.submit( instruction );
+          break;
+        case "interrupt":
+          commander.interrupt();
+          break;
         case "terminate":
           terminate = true;
         case "disconnect":
           clientRunning = false;
           continue;
       }
-      
-      commander.execute( instruction );
     }
     
     try {
