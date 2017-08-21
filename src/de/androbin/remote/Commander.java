@@ -40,6 +40,10 @@ public final class Commander implements Runnable {
   }
   
   public void interrupt() {
+    if ( !running ) {
+      return;
+    }
+    
     thread.interrupt();
   }
   
@@ -58,27 +62,25 @@ public final class Commander implements Runnable {
     }
   }
   
-  public boolean start( final String ip, final int port ) {
+  public void start() {
     if ( running ) {
-      return true;
+      return;
     }
     
     running = true;
     thread = new Thread( this, "Commander" );
     thread.setDaemon( true );
     thread.start();
-    return true;
   }
   
-  public boolean stop() {
+  public void stop() {
     if ( !running ) {
-      return true;
+      return;
     }
     
     running = false;
     thread.interrupt();
     thread = null;
-    return true;
   }
   
   public void submit( final String instruction ) {

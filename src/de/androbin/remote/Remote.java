@@ -85,6 +85,7 @@ public final class Remote {
   @ SuppressWarnings( "resource" )
   private void mediate() {
     final ExecutorService clientHandler = Executors.newCachedThreadPool();
+    commander.start();
     
     while ( serverRunning ) {
       final Socket client;
@@ -102,6 +103,7 @@ public final class Remote {
     }
     
     clientHandler.shutdown();
+    commander.stop();
   }
   
   public void startServer( final int port ) {
