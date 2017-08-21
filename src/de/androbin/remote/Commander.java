@@ -1,16 +1,13 @@
 package de.androbin.remote;
 
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.function.*;
 
 public final class Commander {
-  private final ExecutorService executor;
   public final Map<String, Consumer<String>> mappings;
   public Consumer<String> defaultMapping;
   
   public Commander() {
-    this.executor = Executors.newCachedThreadPool();
     this.mappings = new HashMap<>();
   }
   
@@ -28,11 +25,10 @@ public final class Commander {
       args = "";
     }
     
-    final Consumer<String> mapping = mappings.getOrDefault( command, defaultMapping );
-    executor.execute( () -> mapping.accept( args ) );
-  }
-  
-  public void shutdown() {
-    executor.shutdown();
+    if ( mappings.containsKey( command ) ) {
+      mappings.get( command ).accept( args );
+    } else {
+      defaultMapping.accept( instruction );
+    }
   }
 }

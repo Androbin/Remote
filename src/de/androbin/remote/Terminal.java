@@ -7,17 +7,25 @@ public final class Terminal {
   private Terminal() {
   }
   
-  public static Runnable exec( final String command ) {
-    return exec( splitCommand( command ) );
+  public static Process exec( final String[] cmdarray ) {
+    try {
+      return new ProcessBuilder( cmdarray ).inheritIO().start();
+    } catch ( final IOException ignore ) {
+      return null;
+    }
   }
   
-  public static Runnable exec( final String[] cmdarray ) {
-    return () -> {
-      try {
-        Runtime.getRuntime().exec( cmdarray );
-      } catch ( final IOException ignore ) {
-      }
-    };
+  public static void execAndWait( final String[] cmdarray ) {
+    final Process process = exec( cmdarray );
+    
+    if ( process == null ) {
+      return;
+    }
+    
+    try {
+      process.waitFor();
+    } catch ( final InterruptedException ignore ) {
+    }
   }
   
   public static String[] splitCommand( final String command ) {

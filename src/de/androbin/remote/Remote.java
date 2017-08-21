@@ -1,6 +1,7 @@
 package de.androbin.remote;
 
 import de.androbin.logging.*;
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
@@ -66,11 +67,14 @@ public final class Remote {
   }
   
   public static void main( final String[] args ) {
-    LoggingPanel.inWindow( "Remote Logger", 1600, 900 ).setVisible( true );
+    if ( !GraphicsEnvironment.isHeadless() ) {
+      LoggingPanel.inWindow( "Remote Logger", 1600, 900 ).setVisible( true );
+    }
     
     final Remote remote = new Remote();
     remote.journal = System.out;
-    remote.commander.defaultMapping = command -> Terminal.exec( command ).run();
+    remote.commander.defaultMapping = command -> Terminal
+        .execAndWait( Terminal.splitCommand( command ) );
     remote.startServer( 2823 );
   }
   
@@ -94,7 +98,6 @@ public final class Remote {
     }
     
     clientHandler.shutdown();
-    commander.shutdown();
   }
   
   public void startServer( final int port ) {
@@ -104,7 +107,6 @@ public final class Remote {
       serverRunning = true;
     } catch ( final IOException e ) {
       log( "<server start failed>" );
-      commander.shutdown();
       return;
     }
     
