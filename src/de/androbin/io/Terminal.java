@@ -1,4 +1,4 @@
-package de.androbin.remote;
+package de.androbin.io;
 
 import java.io.*;
 import java.util.*;
@@ -7,16 +7,22 @@ public final class Terminal {
   private Terminal() {
   }
   
-  public static Process exec( final String[] cmdarray ) {
+  public static Process exec( final String[] cmdarray, final boolean inheritIO ) {
+    final ProcessBuilder process = new ProcessBuilder( cmdarray );
+    
+    if ( inheritIO ) {
+      process.inheritIO();
+    }
+    
     try {
-      return new ProcessBuilder( cmdarray ).inheritIO().start();
-    } catch ( final IOException ignore ) {
+      return process.start();
+    } catch ( final IOException e ) {
       return null;
     }
   }
   
-  public static void execAndWait( final String[] cmdarray ) {
-    final Process process = exec( cmdarray );
+  public static void execAndWait( final String[] cmdarray, final boolean inheritIO ) {
+    final Process process = exec( cmdarray, inheritIO );
     
     if ( process == null ) {
       return;
