@@ -23,19 +23,46 @@ public final class Remote {
     final Handle handle = origin.get();
     handle.start();
     
-    while ( handle.handle( context, clientContext ) ) {
+    final Thread inputThread = new Thread( () -> {
+      while ( handle.isRunning() ) {
+        handle.handleInput( context, clientContext );
+      }
+    }, "Handle Input" );
+    inputThread.setDaemon( true );
+    inputThread.start();
+    
+    final Thread outputThread = new Thread( () -> {
+      while ( handle.isRunning() ) {
+        handle.handleOutput( context, clientContext );
+      }
+    }, "Handle Output" );
+    outputThread.setDaemon( true );
+    outputThread.start();
+    
+    synchronized ( inputThread ) {
+      try {
+        inputThread.wait();
+      } catch ( final InterruptedException ignore ) {
+      }
+    }
+    
+    outputThread.interrupt();
+    
+    synchronized ( outputThread ) {
+      try {
+        outputThread.wait();
+      } catch ( final InterruptedException ignore ) {
+      }
     }
     
     final boolean terminate = handle.isTerminal();
     
-    handle.stop();
-    
     try {
       clientContext.close();
       client.close();
-      context.log( "\t<client disconnected>" );
+      context.log( "\t</client>" );
     } catch ( final IOException e ) {
-      context.log( "\t<client disconnect failed>" );
+      context.log( "\t<!client-stop failed>" );
     }
     
     if ( terminate ) {
@@ -52,8 +79,9 @@ public final class Remote {
       
       try {
         client = server.accept();
-        context.log( "\t<client connected>" );
+        context.log( "\t<client>" );
       } catch ( final IOException e ) {
+        context.log( "\t<!client-start failed>" );
         continue;
       }
       
@@ -66,10 +94,10 @@ public final class Remote {
   public void startServer( final int port ) {
     try {
       server = new ServerSocket( port );
-      context.log( "<server started>" );
+      context.log( "<server>" );
       running = true;
     } catch ( final IOException e ) {
-      context.log( "<server start failed>" );
+      context.log( "<!server-start failed>" );
       return;
     }
     
@@ -81,9 +109,9 @@ public final class Remote {
     
     try {
       server.close();
-      context.log( "<server stopped>" );
+      context.log( "</server>" );
     } catch ( final IOException e ) {
-      context.log( "<server stop failed>" );
+      context.log( "<!server-stop failed>" );
     }
   }
 }

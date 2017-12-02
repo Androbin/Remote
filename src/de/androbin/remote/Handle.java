@@ -1,7 +1,11 @@
 package de.androbin.remote;
 
 public interface Handle {
-  boolean handle( ServerContext server, ClientContext client );
+  void handleInput( ServerContext server, ClientContext client );
+  
+  void handleOutput( ServerContext server, ClientContext client );
+  
+  boolean isRunning();
   
   boolean isTerminal();
   
