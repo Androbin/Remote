@@ -25,7 +25,7 @@ public final class Remote {
     
     final Thread inputThread = new Thread( () -> {
       while ( handle.isRunning() ) {
-        handle.handleInput( context, clientContext );
+        handle.handleInput( context, clientContext.input );
       }
     }, "Handle Input" );
     inputThread.setDaemon( true );
@@ -33,7 +33,7 @@ public final class Remote {
     
     final Thread outputThread = new Thread( () -> {
       while ( handle.isRunning() ) {
-        handle.handleOutput( context, clientContext );
+        handle.handleOutput( context, clientContext.output );
       }
     }, "Handle Output" );
     outputThread.setDaemon( true );
